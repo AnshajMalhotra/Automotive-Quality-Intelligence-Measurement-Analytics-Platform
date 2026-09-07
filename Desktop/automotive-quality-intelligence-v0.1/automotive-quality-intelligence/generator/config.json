@@ -1,0 +1,91 @@
+{
+  "models": [
+    "Compact-A",
+    "Compact-B"
+  ],
+  "stations": [
+    {
+      "station_code": "BODY",
+      "characteristics": [
+        {
+          "code": "DOOR_GAP_FL",
+          "target": 4.0,
+          "lsl": 3.5,
+          "usl": 4.5,
+          "sigma": 0.1,
+          "unit": "mm",
+          "defect_bias": 0.009
+        },
+        {
+          "code": "HOOD_FLUSH",
+          "target": 0.0,
+          "lsl": -0.8,
+          "usl": 0.8,
+          "sigma": 0.18,
+          "unit": "mm",
+          "defect_bias": 0.01
+        }
+      ]
+    },
+    {
+      "station_code": "PAINT",
+      "characteristics": [
+        {
+          "code": "PAINT_THICKNESS",
+          "target": 110.0,
+          "lsl": 95.0,
+          "usl": 130.0,
+          "sigma": 3.0,
+          "unit": "um",
+          "defect_bias": 0.008
+        }
+      ]
+    },
+    {
+      "station_code": "ASSEMBLY",
+      "characteristics": [
+        {
+          "code": "WHEEL_TORQUE_FL",
+          "target": 120.0,
+          "lsl": 112.0,
+          "usl": 128.0,
+          "sigma": 1.7,
+          "unit": "Nm",
+          "defect_bias": 0.007
+        },
+        {
+          "code": "SEAT_TORQUE_DRIVER",
+          "target": 42.0,
+          "lsl": 38.0,
+          "usl": 46.0,
+          "sigma": 0.9,
+          "unit": "Nm",
+          "defect_bias": 0.008
+        }
+      ]
+    },
+    {
+      "station_code": "EOL",
+      "characteristics": [
+        {
+          "code": "HEADLAMP_ANGLE",
+          "target": 0.0,
+          "lsl": -1.0,
+          "usl": 1.0,
+          "sigma": 0.22,
+          "unit": "deg",
+          "defect_bias": 0.009
+        },
+        {
+          "code": "BRAKE_FORCE_DELTA",
+          "target": 0.0,
+          "lsl": -8.0,
+          "usl": 8.0,
+          "sigma": 1.8,
+          "unit": "%",
+          "defect_bias": 0.007
+        }
+      ]
+    }
+  ]
+}

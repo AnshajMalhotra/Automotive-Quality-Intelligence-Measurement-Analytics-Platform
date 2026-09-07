@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.DS_Store
+node-red/.config.runtime.json
+node-red/.sessions.json
+node-red/lib/
+node-red/node_modules/
+*.pbix
+sample-data/generated_*.csv

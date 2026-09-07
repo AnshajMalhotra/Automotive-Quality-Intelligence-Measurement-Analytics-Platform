@@ -1,0 +1,109 @@
+{
+  "measurements": 25000,
+  "vehicles": 3572,
+  "out_of_spec_measurements": 498,
+  "measurement_pass_rate_pct": 98.01,
+  "first_pass_yield_pct": 86.93,
+  "weekly_quality": [
+    {
+      "week": "2026-W31",
+      "measurements": 3689,
+      "defects": 177,
+      "failure_rate_pct": 4.8
+    },
+    {
+      "week": "2026-W32",
+      "measurements": 4171,
+      "defects": 119,
+      "failure_rate_pct": 2.85
+    },
+    {
+      "week": "2026-W33",
+      "measurements": 4170,
+      "defects": 88,
+      "failure_rate_pct": 2.11
+    },
+    {
+      "week": "2026-W34",
+      "measurements": 4171,
+      "defects": 52,
+      "failure_rate_pct": 1.25
+    },
+    {
+      "week": "2026-W35",
+      "measurements": 4169,
+      "defects": 31,
+      "failure_rate_pct": 0.74
+    },
+    {
+      "week": "2026-W36",
+      "measurements": 4171,
+      "defects": 28,
+      "failure_rate_pct": 0.67
+    },
+    {
+      "week": "2026-W37",
+      "measurements": 459,
+      "defects": 3,
+      "failure_rate_pct": 0.65
+    }
+  ],
+  "process_capability": [
+    {
+      "station": "ASSEMBLY",
+      "characteristic": "SEAT_TORQUE_DRIVER",
+      "unit": "Nm",
+      "samples": 3571,
+      "cp": 0.816,
+      "cpk": 0.805
+    },
+    {
+      "station": "ASSEMBLY",
+      "characteristic": "WHEEL_TORQUE_FL",
+      "unit": "Nm",
+      "samples": 3571,
+      "cp": 0.872,
+      "cpk": 0.855
+    },
+    {
+      "station": "BODY",
+      "characteristic": "DOOR_GAP_FL",
+      "unit": "mm",
+      "samples": 3572,
+      "cp": 0.864,
+      "cpk": 0.835
+    },
+    {
+      "station": "BODY",
+      "characteristic": "HOOD_FLUSH",
+      "unit": "mm",
+      "samples": 3572,
+      "cp": 0.783,
+      "cpk": 0.742
+    },
+    {
+      "station": "EOL",
+      "characteristic": "BRAKE_FORCE_DELTA",
+      "unit": "%",
+      "samples": 3571,
+      "cp": 0.813,
+      "cpk": 0.809
+    },
+    {
+      "station": "EOL",
+      "characteristic": "HEADLAMP_ANGLE",
+      "unit": "deg",
+      "samples": 3571,
+      "cp": 0.817,
+      "cpk": 0.804
+    },
+    {
+      "station": "PAINT",
+      "characteristic": "PAINT_THICKNESS",
+      "unit": "um",
+      "samples": 3572,
+      "cp": 0.984,
+      "cpk": 0.83
+    }
+  ]
+}

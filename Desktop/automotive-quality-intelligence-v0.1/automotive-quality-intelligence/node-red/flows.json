@@ -1,0 +1,81 @@
+[
+  {
+    "id": "tab-quality",
+    "type": "tab",
+    "label": "Automotive Quality Ingestion",
+    "disabled": false,
+    "info": "Validates incoming measurement events and forwards them to the ingestion API."
+  },
+  {
+    "id": "http-in",
+    "type": "http in",
+    "z": "tab-quality",
+    "name": "POST measurement",
+    "url": "/ingest/measurement",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "validate"
+      ]
+    ]
+  },
+  {
+    "id": "validate",
+    "type": "function",
+    "z": "tab-quality",
+    "name": "Validate + enrich (JavaScript)",
+    "func": "const p = msg.payload || {};\nconst required = [\n  'event_time','vehicle_id','model','station_code','characteristic_code',\n  'shift_code','target_value','lower_spec_limit','upper_spec_limit',\n  'measured_value','unit'\n];\nconst missing = required.filter(k => p[k] === undefined || p[k] === null || p[k] === '');\nif (missing.length) {\n  msg.statusCode = 400;\n  msg.payload = {error: 'Missing required fields', fields: missing};\n  return [null, msg];\n}\nif (Number(p.upper_spec_limit) <= Number(p.lower_spec_limit)) {\n  msg.statusCode = 400;\n  msg.payload = {error: 'upper_spec_limit must be greater than lower_spec_limit'};\n  return [null, msg];\n}\np.source = p.source || 'node-red';\np.pipeline_received_at = new Date().toISOString();\nmsg.payload = p;\nmsg.headers = {'Content-Type': 'application/json'};\nreturn [msg, null];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "api-post"
+      ],
+      [
+        "http-response"
+      ]
+    ]
+  },
+  {
+    "id": "api-post",
+    "type": "http request",
+    "z": "tab-quality",
+    "name": "Forward to Quality API",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://api:8000/measurements",
+    "persist": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 680,
+    "y": 100,
+    "wires": [
+      [
+        "http-response"
+      ]
+    ]
+  },
+  {
+    "id": "http-response",
+    "type": "http response",
+    "z": "tab-quality",
+    "name": "Return result",
+    "statusCode": "",
+    "headers": {},
+    "x": 930,
+    "y": 120,
+    "wires": []
+  }
+]

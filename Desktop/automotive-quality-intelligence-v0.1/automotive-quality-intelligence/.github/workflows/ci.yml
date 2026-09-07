@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Compile Python
+        run: python -m py_compile generator/generate_data.py api/app/main.py analysis/quality_summary.py
+
+      - name: Run unit tests
+        run: pytest -q
+
+      - name: Generate deterministic sample
+        run: |
+          python generator/generate_data.py \
+            --rows 7000 \
+            --days 42 \
+            --seed 47 \
+            --mode csv \
+            --output /tmp/measurements.csv
+          python analysis/quality_summary.py /tmp/measurements.csv --output /tmp/summary.json

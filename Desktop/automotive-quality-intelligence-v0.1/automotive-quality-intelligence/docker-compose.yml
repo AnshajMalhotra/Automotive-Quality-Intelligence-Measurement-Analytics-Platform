@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aqi-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qualitydb}
+      POSTGRES_USER: ${POSTGRES_USER:-quality_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quality_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quality_user} -d ${POSTGRES_DB:-qualitydb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  api:
+    build:
+      context: ./api
+    container_name: aqi-api
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://quality_user:quality_password@postgres:5432/qualitydb}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  node-red:
+    image: nodered/node-red:latest
+    container_name: aqi-node-red
+    environment:
+      FLOWS: flows.json
+    ports:
+      - "${NODE_RED_PORT:-1880}:1880"
+    volumes:
+      - ./node-red:/data
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

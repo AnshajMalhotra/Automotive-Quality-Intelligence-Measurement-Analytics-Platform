@@ -41,15 +41,6 @@ These results come from an independent Python reference, **not an executed DAX e
 
 **Filter meaning matters:** Vehicle FPY is always across all three stations for the selected date/model/shift cohort. Station and defect selections affect inspection measures, not this vehicle cohort measure. The card title says “all stations.” The import audit describes the whole refresh and intentionally ignores report slicers. The rolling measure anchors to the latest selected calendar date; select an August date range for this August sample.
 
-## Explain it in an interview
-
-> I built a small quality reporting project using simulated inspection data. I used Power Query to standardize the records, separate invalid rows, and remove older duplicates. In DAX, I separated inspection defect rate from vehicle first-pass yield because they answer different questions. The dashboard lets me compare stations and follow the daily trend. I also added an import audit so a good-looking KPI does not hide missing or rejected data.
-
-German:
-
-> Ich habe ein kleines Qualitätsdashboard mit simulierten Prüfdaten aufgebaut. In Power Query habe ich die Daten vereinheitlicht, fehlerhafte Zeilen getrennt und ältere Duplikate entfernt. Mit DAX unterscheide ich zwischen der Fehlerquote einzelner Prüfungen und der Erstpassquote vollständiger Fahrzeuge. Im Bericht kann ich Stationen vergleichen und den Verlauf über die Zeit verfolgen. Eine zusätzliche Importprüfung macht sichtbar, welche Daten tatsächlich in die Auswertung eingehen.
-
-Use this description after you have opened, refreshed, and reviewed the report yourself. Do not claim production deployment, employer use, or measured business improvements.
 
 ## Assumptions and limits
 

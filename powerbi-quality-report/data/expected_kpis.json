@@ -1,0 +1,21 @@
+{
+  "inspections": 2520,
+  "failed_inspections": 324,
+  "inspection_defect_rate": 0.12857142857142856,
+  "vehicles": 840,
+  "complete_vehicles": 840,
+  "first_pass_vehicles": 562,
+  "vehicle_fpy": 0.669047619047619,
+  "rework_hours": 159.51666666666668,
+  "defects": {
+    "Paint finish": 75,
+    "Surface inclusion": 60,
+    "Panel gap": 54,
+    "Function check": 50,
+    "Fit and finish": 43,
+    "Weld appearance": 42
+  },
+  "raw_rows": 2534,
+  "rejected_rows": 4,
+  "duplicate_rows_removed": 10
+}

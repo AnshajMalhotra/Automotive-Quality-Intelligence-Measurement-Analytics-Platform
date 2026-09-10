@@ -1,0 +1,101 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "audit",
+  "position": {
+    "x": 800,
+    "y": 530,
+    "z": 0,
+    "width": 460,
+    "height": 240,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DataAudit"
+                    }
+                  },
+                  "Property": "RawRows"
+                }
+              },
+              "queryRef": "DataAudit.RawRows",
+              "nativeQueryRef": "RawRows"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DataAudit"
+                    }
+                  },
+                  "Property": "RejectedRows"
+                }
+              },
+              "queryRef": "DataAudit.RejectedRows",
+              "nativeQueryRef": "RejectedRows"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DataAudit"
+                    }
+                  },
+                  "Property": "DuplicateRows"
+                }
+              },
+              "queryRef": "DataAudit.DuplicateRows",
+              "nativeQueryRef": "DuplicateRows"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DataAudit"
+                    }
+                  },
+                  "Property": "CleanRows"
+                }
+              },
+              "queryRef": "DataAudit.CleanRows",
+              "nativeQueryRef": "CleanRows"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Import audit | entire refresh, unaffected by slicers'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

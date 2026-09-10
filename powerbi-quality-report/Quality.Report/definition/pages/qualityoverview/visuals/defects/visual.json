@@ -1,0 +1,77 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "defects",
+  "position": {
+    "x": 800,
+    "y": 250,
+    "z": 0,
+    "width": 460,
+    "height": 260,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Defect"
+                }
+              },
+              "queryRef": "FactInspection.Defect",
+              "nativeQueryRef": "Defect"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Failed inspections"
+                }
+              },
+              "queryRef": "FactInspection.Failed inspections",
+              "nativeQueryRef": "Failed inspections"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Failed inspections by defect'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

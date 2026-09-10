@@ -1,0 +1,569 @@
+{
+  "name": "Quality",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "tables": [
+      {
+        "name": "FactInspection",
+        "columns": [
+          {
+            "name": "InspectionID",
+            "dataType": "string",
+            "sourceColumn": "InspectionID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "VehicleID",
+            "dataType": "string",
+            "sourceColumn": "VehicleID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Date",
+            "summarizeBy": "none",
+            "formatString": "yyyy-MM-dd"
+          },
+          {
+            "name": "Model",
+            "dataType": "string",
+            "sourceColumn": "Model",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Shift",
+            "dataType": "string",
+            "sourceColumn": "Shift",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Station",
+            "dataType": "string",
+            "sourceColumn": "Station",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Result",
+            "dataType": "string",
+            "sourceColumn": "Result",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Defect",
+            "dataType": "string",
+            "sourceColumn": "Defect",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ReworkMinutes",
+            "dataType": "double",
+            "sourceColumn": "ReworkMinutes",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "FactInspection",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "CleanInspections"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Inspections",
+            "expression": [
+              "COUNTROWS(FactInspection)"
+            ],
+            "formatString": "#,0"
+          },
+          {
+            "name": "Failed inspections",
+            "expression": [
+              "CALCULATE([Inspections], KEEPFILTERS(FactInspection[Result] = \"FAIL\"))"
+            ],
+            "formatString": "#,0"
+          },
+          {
+            "name": "Inspection defect rate",
+            "expression": [
+              "DIVIDE([Failed inspections], [Inspections])"
+            ],
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Complete vehicles",
+            "expression": [
+              "CALCULATE(COUNTROWS(FactVehicle), FactVehicle[Complete] = TRUE())"
+            ],
+            "formatString": "#,0"
+          },
+          {
+            "name": "First-pass vehicles",
+            "expression": [
+              "CALCULATE(COUNTROWS(FactVehicle), FactVehicle[FirstPass] = TRUE())"
+            ],
+            "formatString": "#,0"
+          },
+          {
+            "name": "Vehicle FPY",
+            "expression": [
+              "DIVIDE([First-pass vehicles], [Complete vehicles])"
+            ],
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Rework hours",
+            "expression": [
+              "DIVIDE(SUM(FactInspection[ReworkMinutes]), 60)"
+            ],
+            "formatString": "0.0"
+          },
+          {
+            "name": "Defect rate last 7 days",
+            "expression": [
+              "VAR EndDate = MAX(DimDate[Date])",
+              "RETURN CALCULATE([Inspection defect rate], REMOVEFILTERS(DimDate), DATESBETWEEN(DimDate[Date], EndDate - 6, EndDate))"
+            ],
+            "formatString": "0.0%"
+          }
+        ]
+      },
+      {
+        "name": "FactVehicle",
+        "columns": [
+          {
+            "name": "VehicleID",
+            "dataType": "string",
+            "sourceColumn": "VehicleID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Date",
+            "summarizeBy": "none",
+            "formatString": "yyyy-MM-dd"
+          },
+          {
+            "name": "Model",
+            "dataType": "string",
+            "sourceColumn": "Model",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Shift",
+            "dataType": "string",
+            "sourceColumn": "Shift",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "InspectionCount",
+            "dataType": "int64",
+            "sourceColumn": "InspectionCount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "FailCount",
+            "dataType": "int64",
+            "sourceColumn": "FailCount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Complete",
+            "dataType": "boolean",
+            "sourceColumn": "Complete",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "FirstPass",
+            "dataType": "boolean",
+            "sourceColumn": "FirstPass",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "FactVehicle",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Grouped = Table.Group(CleanInspections, {\"VehicleID\"}, {",
+                "        {\"Date\", each List.Min([Date]), type date},",
+                "        {\"Model\", each List.Min([Model]), type text},",
+                "        {\"Shift\", each List.Min([Shift]), type text},",
+                "        {\"InspectionCount\", each Table.RowCount(_), Int64.Type},",
+                "        {\"FailCount\", each List.Count(List.Select([Result], (r) => r = \"FAIL\")), Int64.Type},",
+                "        {\"Complete\", each Table.RowCount(_) = 3 and List.Count(List.Distinct([Station])) = 3 and List.Count(List.Distinct([Date])) = 1 and List.Count(List.Distinct([Model])) = 1 and List.Count(List.Distinct([Shift])) = 1, type logical}}),",
+                "    FirstPass = Table.AddColumn(Grouped, \"FirstPass\", each [Complete] and [FailCount] = 0, type logical)",
+                "in",
+                "    FirstPass"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimDate",
+        "columns": [
+          {
+            "name": "Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Date",
+            "summarizeBy": "none",
+            "formatString": "yyyy-MM-dd"
+          },
+          {
+            "name": "Year",
+            "dataType": "int64",
+            "sourceColumn": "Year",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "dataType": "string",
+            "sourceColumn": "Month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "WeekStart",
+            "dataType": "dateTime",
+            "sourceColumn": "WeekStart",
+            "summarizeBy": "none",
+            "formatString": "yyyy-MM-dd"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DimDate",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    MinDate = if Table.IsEmpty(CleanInspections) then #date(2026,1,1) else Date.StartOfYear(List.Min(CleanInspections[Date])),",
+                "    MaxDate = if Table.IsEmpty(CleanInspections) then #date(2026,12,31) else Date.EndOfYear(List.Max(CleanInspections[Date])),",
+                "    Dates = Table.FromList(List.Dates(MinDate,Duration.Days(MaxDate-MinDate)+1,#duration(1,0,0,0)),Splitter.SplitByNothing(),{\"Date\"}),",
+                "    Typed = Table.TransformColumnTypes(Dates, {{\"Date\",type date}}),",
+                "    Year = Table.AddColumn(Typed,\"Year\",each Date.Year([Date]),Int64.Type),",
+                "    Month = Table.AddColumn(Year,\"Month\",each Date.ToText([Date],\"yyyy-MM\",\"en-US\"),type text),",
+                "    WeekStart = Table.AddColumn(Month,\"WeekStart\",each Date.StartOfWeek([Date],Day.Monday),type date)",
+                "in",
+                "    WeekStart"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimModel",
+        "columns": [
+          {
+            "name": "Model",
+            "dataType": "string",
+            "sourceColumn": "Model",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DimModel",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "#table(type table [Model = text], {{\"Compact A\"}, {\"Compact B\"}})"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimShift",
+        "columns": [
+          {
+            "name": "Shift",
+            "dataType": "string",
+            "sourceColumn": "Shift",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DimShift",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "#table(type table [Shift = text], {{\"A\"}, {\"B\"}, {\"C\"}})"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimStation",
+        "columns": [
+          {
+            "name": "Station",
+            "dataType": "string",
+            "sourceColumn": "Station",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DimStation",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "#table(type table [Station = text], {{\"Body\"}, {\"Paint\"}, {\"Final\"}})"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataAudit",
+        "columns": [
+          {
+            "name": "RawRows",
+            "dataType": "int64",
+            "sourceColumn": "RawRows",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RejectedRows",
+            "dataType": "int64",
+            "sourceColumn": "RejectedRows",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DuplicateRows",
+            "dataType": "int64",
+            "sourceColumn": "DuplicateRows",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CleanRows",
+            "dataType": "int64",
+            "sourceColumn": "CleanRows",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DataAudit",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    RawCount = Table.RowCount(RawInspections),",
+                "    RejectedCount = Table.RowCount(Table.SelectRows(ParsedInspections,each [Issue] <> null)),",
+                "    CleanCount = Table.RowCount(CleanInspections),",
+                "    Output = #table(type table [RawRows=Int64.Type,RejectedRows=Int64.Type,DuplicateRows=Int64.Type,CleanRows=Int64.Type],{{RawCount,RejectedCount,RawCount-RejectedCount-CleanCount,CleanCount}})",
+                "in",
+                "    Output"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "RejectedRows",
+        "columns": [
+          {
+            "name": "InspectionID",
+            "dataType": "string",
+            "sourceColumn": "InspectionID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "VehicleID",
+            "dataType": "string",
+            "sourceColumn": "VehicleID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Date",
+            "dataType": "string",
+            "sourceColumn": "Date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Station",
+            "dataType": "string",
+            "sourceColumn": "Station",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Result",
+            "dataType": "string",
+            "sourceColumn": "Result",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ReworkMinutes",
+            "dataType": "string",
+            "sourceColumn": "ReworkMinutes",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Issue",
+            "dataType": "string",
+            "sourceColumn": "Issue",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "RejectedRows",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Rejected = Table.SelectRows(ParsedInspections, each [Issue] <> null),",
+                "    Selected = Table.SelectColumns(Rejected,{\"InspectionID\",\"VehicleID\",\"Date\",\"Station\",\"Result\",\"ReworkMinutes\",\"Issue\"})",
+                "in",
+                "    Selected"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "FactInspection_DimDate",
+        "fromTable": "FactInspection",
+        "fromColumn": "Date",
+        "toTable": "DimDate",
+        "toColumn": "Date",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactInspection_DimModel",
+        "fromTable": "FactInspection",
+        "fromColumn": "Model",
+        "toTable": "DimModel",
+        "toColumn": "Model",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactInspection_DimShift",
+        "fromTable": "FactInspection",
+        "fromColumn": "Shift",
+        "toTable": "DimShift",
+        "toColumn": "Shift",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactInspection_DimStation",
+        "fromTable": "FactInspection",
+        "fromColumn": "Station",
+        "toTable": "DimStation",
+        "toColumn": "Station",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactVehicle_DimDate",
+        "fromTable": "FactVehicle",
+        "fromColumn": "Date",
+        "toTable": "DimDate",
+        "toColumn": "Date",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactVehicle_DimModel",
+        "fromTable": "FactVehicle",
+        "fromColumn": "Model",
+        "toTable": "DimModel",
+        "toColumn": "Model",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "FactVehicle_DimShift",
+        "fromTable": "FactVehicle",
+        "fromColumn": "Shift",
+        "toTable": "DimShift",
+        "toColumn": "Shift",
+        "crossFilteringBehavior": "oneDirection"
+      }
+    ],
+    "expressions": [
+      {
+        "name": "CleanInspections",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Valid = Table.SelectRows(ParsedInspections, each [Issue] = null),",
+          "    // Buffer after sorting: keep the latest update, then the last input row for timestamp ties.",
+          "    Sorted = Table.Buffer(Table.Sort(Valid, {{\"ParsedUpdated\",Order.Descending},{\"_Row\",Order.Descending}})),",
+          "    Latest = Table.Distinct(Sorted, {\"InspectionID\"}),",
+          "    Selected = Table.SelectColumns(Latest, {\"InspectionID\",\"VehicleID\",\"ParsedDate\",\"Model\",\"Shift\",\"Station\",\"Result\",\"Defect\",\"ParsedMinutes\"}),",
+          "    Renamed = Table.RenameColumns(Selected, {{\"ParsedDate\",\"Date\"},{\"ParsedMinutes\",\"ReworkMinutes\"}}),",
+          "    Typed = Table.TransformColumnTypes(Renamed, {{\"InspectionID\",type text},{\"VehicleID\",type text},{\"Date\",type date},{\"Model\",type text},{\"Shift\",type text},{\"Station\",type text},{\"Result\",type text},{\"Defect\",type text},{\"ReworkMinutes\",type number}}, \"en-US\")",
+          "in",
+          "    Typed"
+        ]
+      },
+      {
+        "name": "DataFolder",
+        "kind": "m",
+        "expression": [
+          "\"C:\\PowerBI\\automotive-quality\\powerbi-quality-report\\data\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+        ]
+      },
+      {
+        "name": "ParsedInspections",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Trimmed = Table.TransformColumns(RawInspections, List.Transform({\"InspectionID\",\"VehicleID\",\"Date\",\"Model\",\"Shift\",\"Station\",\"Result\",\"Defect\",\"ReworkMinutes\",\"UpdatedAt\"}, (c) => {c, each if _ = null then \"\" else Text.Trim(Text.From(_)), type text})),",
+          "    Normalized = Table.TransformColumns(Trimmed, {{\"Station\",Text.Proper,type text},{\"Result\",Text.Upper,type text},{\"Shift\",Text.Upper,type text}}),",
+          "    DateParsed = Table.AddColumn(Normalized, \"ParsedDate\", each try Date.FromText([Date], [Format=\"yyyy-MM-dd\", Culture=\"en-US\"]) otherwise null, type nullable date),",
+          "    MinutesParsed = Table.AddColumn(DateParsed, \"ParsedMinutes\", each try Number.FromText([ReworkMinutes], \"en-US\") otherwise null, type nullable number),",
+          "    UpdatedParsed = Table.AddColumn(MinutesParsed, \"ParsedUpdated\", each try DateTime.FromText([UpdatedAt], [Format=\"yyyy-MM-dd'T'HH:mm:ss\", Culture=\"en-US\"]) otherwise null, type nullable datetime),",
+          "    Validation = Table.AddColumn(UpdatedParsed, \"Issue\", each",
+          "        if [InspectionID] = \"\" or [VehicleID] = \"\" then \"Missing ID\"",
+          "        else if [ParsedDate] = null or [ParsedUpdated] = null then \"Invalid date\"",
+          "        else if not List.Contains({\"Body\",\"Paint\",\"Final\"}, [Station]) then \"Unknown station\"",
+          "        else if not List.Contains({\"Compact A\",\"Compact B\"}, [Model]) then \"Unknown model\"",
+          "        else if not List.Contains({\"A\",\"B\",\"C\"}, [Shift]) then \"Unknown shift\"",
+          "        else if not List.Contains({\"PASS\",\"FAIL\"}, [Result]) then \"Unknown result\"",
+          "        else if [ParsedMinutes] = null or [ParsedMinutes] < 0 then \"Invalid rework minutes\"",
+          "        else if [Result] = \"PASS\" and ([Defect] <> \"None\" or [ParsedMinutes] <> 0) then \"Inconsistent pass row\"",
+          "        else if [Result] = \"FAIL\" and not List.Contains({\"Panel gap\",\"Weld appearance\",\"Surface inclusion\",\"Paint finish\",\"Fit and finish\",\"Function check\"},[Defect]) then \"Invalid failure category\"",
+          "        else null, type nullable text)",
+          "in",
+          "    Validation"
+        ]
+      },
+      {
+        "name": "RawInspections",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = Csv.Document(File.Contents(DataFolder & \"/inspections_raw.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+          "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+          "    Required = Table.SelectColumns(Headers, {\"InspectionID\",\"VehicleID\",\"Date\",\"Model\",\"Shift\",\"Station\",\"Result\",\"Defect\",\"ReworkMinutes\",\"UpdatedAt\"}),",
+          "    Indexed = Table.AddIndexColumn(Required, \"_Row\", 0, 1, Int64.Type)",
+          "in",
+          "    Indexed"
+        ]
+      }
+    ]
+  }
+}

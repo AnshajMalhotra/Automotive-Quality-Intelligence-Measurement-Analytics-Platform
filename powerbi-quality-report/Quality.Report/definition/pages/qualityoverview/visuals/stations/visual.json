@@ -1,0 +1,115 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "stations",
+  "position": {
+    "x": 20,
+    "y": 530,
+    "z": 0,
+    "width": 760,
+    "height": 240,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimStation"
+                    }
+                  },
+                  "Property": "Station"
+                }
+              },
+              "queryRef": "DimStation.Station",
+              "nativeQueryRef": "Station"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Inspections"
+                }
+              },
+              "queryRef": "FactInspection.Inspections",
+              "nativeQueryRef": "Inspections"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Failed inspections"
+                }
+              },
+              "queryRef": "FactInspection.Failed inspections",
+              "nativeQueryRef": "Failed inspections"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Inspection defect rate"
+                }
+              },
+              "queryRef": "FactInspection.Inspection defect rate",
+              "nativeQueryRef": "Inspection defect rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactInspection"
+                    }
+                  },
+                  "Property": "Rework hours"
+                }
+              },
+              "queryRef": "FactInspection.Rework hours",
+              "nativeQueryRef": "Rework hours"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Station results | FPY above covers all stations'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

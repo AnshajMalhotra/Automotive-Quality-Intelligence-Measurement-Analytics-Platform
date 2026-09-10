@@ -1,0 +1,24 @@
+Inspections =
+COUNTROWS(FactInspection)
+
+Failed inspections =
+CALCULATE([Inspections], KEEPFILTERS(FactInspection[Result] = "FAIL"))
+
+Inspection defect rate =
+DIVIDE([Failed inspections], [Inspections])
+
+Complete vehicles =
+CALCULATE(COUNTROWS(FactVehicle), FactVehicle[Complete] = TRUE())
+
+First-pass vehicles =
+CALCULATE(COUNTROWS(FactVehicle), FactVehicle[FirstPass] = TRUE())
+
+Vehicle FPY =
+DIVIDE([First-pass vehicles], [Complete vehicles])
+
+Rework hours =
+DIVIDE(SUM(FactInspection[ReworkMinutes]), 60)
+
+Defect rate last 7 days =
+VAR EndDate = MAX(DimDate[Date])
+RETURN CALCULATE([Inspection defect rate], REMOVEFILTERS(DimDate), DATESBETWEEN(DimDate[Date], EndDate - 6, EndDate))

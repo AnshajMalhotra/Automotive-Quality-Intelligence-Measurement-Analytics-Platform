@@ -1,0 +1,59 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "filter2",
+  "position": {
+    "x": 860,
+    "y": 155,
+    "z": 0,
+    "width": 400,
+    "height": 80,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimShift"
+                    }
+                  },
+                  "Property": "Shift"
+                }
+              },
+              "queryRef": "DimShift.Shift",
+              "nativeQueryRef": "Shift"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Shift'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

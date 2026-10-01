@@ -1,71 +1,108 @@
-# Automotive Quality Report — Power BI
+# Automotive Quality Intelligence
 
-A focused portfolio project for quality reporting: **Power Query prepares inspection records; DAX calculates quality KPIs; a native Power BI report presents the results.** All data is synthetic and unrelated to Mercedes-Benz or any employer.
+A simple, visual overview of a manufacturing quality analytics project for automotive inspection and launch performance.
 
-**Status:** Editable PBIP/PBIR source generated and locally checked. Power BI Desktop has not been run in this environment; opening, refreshing, and visual acceptance in Desktop remain required. This is not a prevalidated PBIX file.
+This repository brings together synthetic vehicle inspection data, data preparation, quality KPIs, and a Power BI-style reporting experience. It is designed to demonstrate how raw production data becomes actionable quality insight.
 
-## Open the report
+> The project is based on synthetic data and is intended for learning, portfolio use, and demonstration.
 
-1. Download or clone this repository to a local Windows folder.
-2. Open `powerbi-quality-report/Quality.pbip` in current Power BI Desktop. Enable Power BI Project saving under Options → Preview features if your version requires it.
-3. In **Transform data → Manage parameters**, set `DataFolder` to the absolute path of this project's `powerbi-quality-report/data` folder. The default is an example Windows path.
-4. Choose **Close & Apply**, then **Refresh**. The local CSV requires no credentials.
-5. Check the totals below with date/model/shift slicers cleared. Check that model and shift change the results and that the import audit stays constant. Save as PBIP, or use Desktop's Save As to create a PBIX.
+## What this project does
 
-The report contains four KPI cards, three slicers, a daily trend, a defect bar chart, a station table, and a refresh audit table. If a Desktop version rejects a visual definition, the complete bindings and layout are in `powerbi-quality-report/scripts/build_project.py`; recreate that visual using the same fields while retaining the semantic model.
+It answers practical quality questions such as:
 
-## Expected full-data results
+- How many inspections pass or fail?
+- Which stations have the highest defect rates?
+- Are vehicles passing on the first attempt?
+- Is quality improving over time?
+- How can a BI report present the results clearly?
 
-| KPI | Reference result |
-|---|---:|
-| Raw rows | 2,534 |
-| Invalid rows quarantined | 4 |
-| Older duplicates removed | 10 |
-| Valid inspections | 2,520 |
-| Failed inspections | 324 |
-| Inspection defect rate | 12.8571% |
-| Complete vehicles | 840 |
-| First-pass vehicles | 562 |
-| Vehicle first-pass yield | 66.9048% |
-| Recorded rework hours | 159.5167 |
+## End-to-end flow
 
-These results come from an independent Python reference, **not an executed DAX engine**. Compare Desktop results against `powerbi-quality-report/data/expected_kpis.json` before presenting the project as validated.
-
-## How it works
-
-**Power Query (M):** reads the CSV, selects required columns, trims whitespace, normalizes station/result/shift text, explicitly parses dates and numbers, quarantines invalid rows, and keeps the latest valid version per inspection ID. Buffering the sorted rows before distinct preserves the intended deduplication order. `RejectedRows` records the reason each invalid row failed. The audit accounts for every input row: raw = rejected + duplicates + clean.
-
-**Model:** `FactInspection` contains one first-attempt inspection per vehicle per station. `FactVehicle` contains one vehicle summary. Date, model, and shift dimensions filter both facts; station filters inspections only. Relationships are single direction. A complete vehicle must have exactly three inspections at three distinct valid stations, with consistent date, model, and shift.
-
-**DAX:** `COUNTROWS` counts inspections. `CALCULATE` adds a FAIL filter to count failed inspections. `KEEPFILTERS` intersects existing result filters. `DIVIDE` calculates ratios safely when there is no denominator. Vehicle FPY divides vehicles that pass every required station by complete vehicles. Rework minutes are summed and divided by 60. The optional seven-day measure recomputes failed/total inspections over the last seven calendar days—it does not average daily percentages.
-
-**Filter meaning matters:** Vehicle FPY is always across all three stations for the selected date/model/shift cohort. Station and defect selections affect inspection measures, not this vehicle cohort measure. The card title says “all stations.” The import audit describes the whole refresh and intentionally ignores report slicers. The rolling measure anchors to the latest selected calendar date; select an August date range for this August sample.
-
-
-## Assumptions and limits
-
-- This is a first-attempt snapshot, not a repair lifecycle or repeated-inspection tracking system.
-- There is one defect category per failed inspection. The defect rate is failed inspections / inspections, not defects per unit.
-- Rework time is synthetic time associated with failed inspections, not proof that repairs were completed.
-- Incomplete or inconsistent vehicle cohorts are excluded from FPY. Production reporting needs an agreed completeness and time-window policy.
-- The existing platform's PostgreSQL view is measurement-grained. `powerbi-quality-report/power-query/PostgreSQLSource.example.m` demonstrates a connection only; it cannot replace this inspection source without an inspection ID, attempt definition, and vehicle/station mapping.
-
-## Reproduce the checks
-
-Python 3, standard library only:
-
-```sh
-python powerbi-quality-report/scripts/generate_data.py
-python powerbi-quality-report/scripts/validate_data.py
-python powerbi-quality-report/scripts/build_project.py
-python -m unittest discover -s powerbi-quality-report/tests -v
+```text
+Synthetic inspection data
+          |
+          v
+   Data preparation
+          |
+          v
+   Quality modeling
+          |
+          v
+  KPI calculation
+          |
+          v
+ Power BI dashboard
 ```
 
-`powerbi-quality-report/power-query/` contains the editable M source; `powerbi-quality-report/dax/measures.dax` contains all eight measures. The builder embeds those queries into the semantic model and writes the report. Python checks validate the reference calculations and file/field consistency; they do not replace Desktop acceptance.
+## Core concepts
 
-## Microsoft references
+- Inspection data: vehicle and station-level quality records
+- Defect analysis: failed inspections and recurring issues
+- First Pass Yield (FPY): vehicles completing all required checks successfully
+- Trend analysis: quality performance over time
+- Dashboard reporting: a readable summary for operations and leadership
 
-- [Power BI Projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)
-- [PBIR report format](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report)
-- [CALCULATE](https://learn.microsoft.com/en-us/dax/calculate-function-dax)
-- [DIVIDE](https://learn.microsoft.com/en-us/dax/divide-function-dax)
+## Typical KPI outputs
+
+- Raw inspections received
+- Valid vs. rejected records
+- Failed inspection rate
+- Defect rate by category
+- Complete vehicle count
+- First-pass vehicle yield
+- Rework hours or delay impact
+
+## Repository structure
+
+```text
+.
+├── Desktop/
+│   └── automotive-quality-intelligence-v0.1/
+│       └── automotive-quality-intelligence/
+│           ├── api/
+│           ├── db/
+│           ├── generator/
+│           ├── node-red/
+│           ├── powerbi/
+│           ├── docs/
+│           └── tests/
+├── powerbi-quality-report/
+│   ├── data/
+│   ├── dax/
+│   ├── power-query/
+│   ├── scripts/
+│   ├── tests/
+│   └── Quality.pbip
+├── README.md
+└── LICENSE
+```
+
+## Quick view of the reporting workflow
+
+1. Data is prepared and cleaned.
+2. The model organizes facts and dimensions.
+3. DAX calculates the quality measures.
+4. Power BI presents the results in a dashboard.
+
+## Why this matters
+
+This project demonstrates a real-world analytics pattern:
+
+- collect measurement data
+- validate and normalize it
+- calculate business KPIs
+- visualize the output for operational decisions
+
+It is a practical example of how manufacturing quality information can be transformed into a decision-support story.
+
+## How to use it
+
+- Open the Power BI project under `powerbi-quality-report/`
+- Review the data and transformation logic in `power-query/`
+- Inspect the KPI definitions in `dax/`
+- Use the Python scripts for data generation and validation
+
+## Portfolio summary
+
+This project is a compact example of automotive quality intelligence: a data pipeline, a quality model, and a reporting layer working together to make production performance understandable at a glance.
+
